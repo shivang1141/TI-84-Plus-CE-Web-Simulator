@@ -72,7 +72,7 @@ Fully injected Math.js logic to approximate statistical density formulas on comm
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/ti-84-emulator.git
+git clone https://github.com/shivang1141/TI-84-Plus-CE-Web-Simulator.git
 cd ti-84-emulator
 
 # Download vital node-modules
