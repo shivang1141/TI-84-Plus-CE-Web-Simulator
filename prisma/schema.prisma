@@ -1,0 +1,28 @@
+// This is your Prisma schema file (Prisma 7+)
+// Connection URLs are now configured in prisma.config.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  history     Json   @default("[]")
+  variables   Json   @default("{}")
+  equations   Json   @default("[]")
+  settings    Json   @default("{}")
+  graphWindow Json   @default("{}")
+  programs    Json   @default("[]")
+  lists       Json   @default("{}")
+  lastAnswer  Float  @default(0)
+  sessionKey  String @unique @default(cuid())
+
+  @@map("user_sessions")
+}

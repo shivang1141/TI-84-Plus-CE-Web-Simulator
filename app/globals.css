@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/* ── CSS Custom Properties ─────────────────────────────────── */
+:root {
+  --shell-red: #8B1A1A;
+  --shell-dark: #5C0A0A;
+  --lcd-bg: #C8D6C8;
+  --lcd-lit: #D8EAD8;
+  --key-dark: #3A0808;
+  --key-light: #D8CFC0;
+  --label-blue: #5B9BD5;
+  --label-green: #4CAF50;
+}
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  background: #1a1a2e;
+}
+
+/* ── Font faces ───────────────────────────────────────────── */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Calculator key press animation ─────────────────────────── */
+.key-press {
+  animation: keyPress 0.08s ease-out;
+}
+
+@keyframes keyPress {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(1px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); }
+  100% { transform: translateY(0); }
+}
+
+/* ── LCD screen scanlines (subtle) ────────────────────────── */
+.lcd-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.025) 2px,
+    rgba(0, 0, 0, 0.025) 3px
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── Screen glow effect ────────────────────────────────────── */
+.screen-glow {
+  box-shadow: inset 0 0 30px rgba(100, 200, 100, 0.08), 0 0 20px rgba(100, 200, 100, 0.05);
+}
+
+/* ── Calculator body gloss ─────────────────────────────────── */
+.calc-gloss::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 35%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  border-radius: 28px 28px 0 0;
+  pointer-events: none;
+}
+
+/* ── Scrollbar hide for menu overlays ─────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Smooth transitions ────────────────────────────────────── */
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
