@@ -3,13 +3,21 @@
 // Main Calculator Page — hydration + keyboard + shell
 // ============================================================
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CalculatorShell from '@/components/calculator/CalculatorShell';
 import { useCalculatorStore, dispatchAction } from '@/store/useCalculatorStore';
 import { getKeyboardAction } from '@/lib/keyboardMap';
 
+// Natural width of the calculator shell (px)
+const CALC_NATURAL_W = 370;
+
 export default function CalculatorPage() {
   const { loadSession, setBrightness, brightness, isSecond } = useCalculatorStore();
+
+  // ── Responsive fit: scale the whole calculator to always fill the viewport ─
+  const calcRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [naturalH, setNaturalH] = useState(760); // rough guess; overridden after mount
 
   // ── Load session from DB on mount ────────────────────────────────────────
   useEffect(() => {
@@ -63,8 +71,29 @@ export default function CalculatorPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // ── Measure actual calculator height, then keep it fitted to the viewport ──
+  useEffect(() => {
+    const compute = () => {
+      const el = calcRef.current;
+      if (!el) return;
+      const h = el.offsetHeight || 760;
+      setNaturalH(h);
+      // Scale to fit both width AND height with a small margin
+      const scaleW = (window.innerWidth - 16) / CALC_NATURAL_W;
+      const scaleH = (window.innerHeight - 16) / h;
+      setScale(Math.min(scaleW, scaleH, 1));
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, []);
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#1a1a2e] relative overflow-hidden">
+    /*
+     * h-screen + overflow-hidden = viewport is the boundary, no scrolling ever.
+     * The calculator is scaled so it always fits inside the full viewport.
+     */
+    <main className="h-screen overflow-hidden flex items-center justify-center bg-[#1a1a2e] relative">
       {/* Ambient background glow */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -82,13 +111,35 @@ export default function CalculatorPage() {
         }}
       />
 
-      {/* Calculator */}
-      <div className="relative z-10" style={{ filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.9))' }}>
-        <CalculatorShell />
+      {/*
+       * Outer shell: its CSS dimensions equal the SCALED size of the calculator.
+       * This tells flexbox exactly how much space the visual element occupies,
+       * so no overflow / scroll is ever triggered.
+       */}
+      <div
+        className="relative z-10 flex items-center justify-center"
+        style={{
+          width:  `${CALC_NATURAL_W * scale}px`,
+          height: `${naturalH * scale}px`,
+          flexShrink: 0,
+        }}
+      >
+        {/* Inner shell: this is the element that actually scales */}
+        <div
+          ref={calcRef}
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'center center',
+            filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.9))',
+            flexShrink: 0,
+          }}
+        >
+          <CalculatorShell />
+        </div>
       </div>
 
       {/* Keyboard hint */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-[10px] tracking-widest">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/30 text-[10px] tracking-widest text-center whitespace-nowrap">
         KEYBOARD: Enter=EVAL · Esc=CLR · F1-F5=FUNC KEYS · x=X · p=π
       </div>
     </main>
